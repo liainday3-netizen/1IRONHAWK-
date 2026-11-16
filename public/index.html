@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#070b12" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>IRONHAWK MOBILE</title>
+<style>
+  :root {
+    --bg: #070b12;
+    --card: #0b1019;
+    --line: #273244;
+    --text: #dce3eb;
+    --muted: #8492a3;
+    --green: #00ff88;
+    --red: #ff4d6a;
+    --amber: #f5c14a;
+    --blue: #7aa2ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  body { min-height: 100dvh; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  header, main, nav, section { max-width: 520px; margin: 0 auto; }
+  header { position: sticky; top: 0; z-index: 5; background: rgba(7,11,18,.94); border-bottom: 1px solid var(--line); padding: 12px 14px 10px; }
+  .kicker { color: var(--green); font-size: 10px; letter-spacing: .22em; font-weight: 700; }
+  h1 { margin: 2px 0 8px; font-size: 20px; letter-spacing: -.03em; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { border: 1px solid var(--line); padding: 4px 7px; font-size: 10px; color: var(--muted); }
+  .pill.on { color: var(--green); border-color: rgba(0,255,136,.45); background: rgba(0,255,136,.08); }
+  .pill.warn { color: var(--amber); border-color: rgba(245,193,74,.45); }
+  .pill.bad { color: var(--red); border-color: rgba(255,77,106,.45); }
+  main { padding: 12px 12px 20px; }
+  .banner { border: 1px solid rgba(245,193,74,.4); background: rgba(245,193,74,.07); color: var(--amber); font-size: 11px; line-height: 1.45; padding: 10px; margin-bottom: 12px; }
+  .card { border: 1px solid var(--line); background: var(--card); margin-bottom: 10px; }
+  .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .sym { font-weight: 700; font-size: 14px; }
+  .sub { color: var(--muted); font-size: 10px; margin-top: 3px; }
+  .right { text-align: right; }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .tag { display: inline-block; border: 1px solid var(--line); font-size: 10px; font-weight: 700; padding: 4px 6px; }
+  .tag.buy { color: var(--green); border-color: rgba(0,255,136,.4); background: rgba(0,255,136,.08); }
+  .tag.sell { color: var(--red); border-color: rgba(255,77,106,.4); background: rgba(255,77,106,.08); }
+  .tag.poi { color: var(--green); }
+  .tag.wait { color: var(--muted); }
+  button, input, select { font: inherit; color: inherit; background: #0b1019; border: 1px solid var(--line); border-radius: 0; }
+  button { min-height: 44px; padding: 10px 12px; font-size: 12px; font-weight: 700; }
+  button.primary { width: 100%; background: rgba(0,255,136,.1); color: var(--green); border-color: rgba(0,255,136,.5); }
+  button.danger { background: rgba(255,77,106,.1); color: var(--red); border-color: rgba(255,77,106,.45); }
+  button.ghost { color: var(--text); }
+  button:disabled { opacity: .45; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  label { display: block; font-size: 10px; color: var(--muted); margin: 10px 0 6px; }
+  input, select { width: 100%; min-height: 44px; padding: 8px; }
+  .pad { padding: 12px; }
+  .log { font-size: 11px; color: var(--muted); padding: 8px 12px; border-top: 1px solid var(--line); word-break: break-word; }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); background: #070b12; border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+  nav button { border: 0; border-right: 1px solid var(--line); color: var(--muted); background: transparent; }
+  nav button.active { color: var(--green); }
+  .hidden { display: none; }
+  a { color: var(--green); }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">IRONHAWK_SYSTEM</div>
+  <h1>DEX_MATRIX</h1>
+  <div class="pills">
+    <span id="feedPill" class="pill">FEED_OFF</span>
+    <span id="modePill" class="pill warn">PAPER</span>
+    <span id="armPill" class="pill">DISARMED</span>
+    <span id="clockPill" class="pill">--:--</span>
+  </div>
+</header>
+<main>
+  <div class="banner" id="banner">
+    LIVE_TRADING_FAIL_CLOSED. This phone terminal reads public prices and can stage a wallet swap. Book and risk gates run on the IronHawk server. Neither the phone nor the server holds a private key or signs a transaction.
+  </div>
+
+  <section id="view-scan"></section>
+  <section id="view-trade" class="hidden"></section>
+  <section id="view-book" class="hidden"></section>
+  <section id="view-capital" class="hidden"></section>
+</main>
+<nav>
+  <button type="button" data-view="scan" class="active">SCAN</button>
+  <button type="button" data-view="trade">TRADE</button>
+  <button type="button" data-view="book">BOOK</button>
+  <button type="button" data-view="capital">CAPITAL</button>
+</nav>
+<script>
+// IronHawk Mobile client — thin view over the server API. All gates are enforced server-side.
+let S = null;
+let view = "scan";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function money(n) {
+  if (n == null || !Number.isFinite(n)) return "—";
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: n < 1 ? 6 : 2 });
+}
+function token() { return localStorage.getItem("ironhawk-token") || ""; }
+
+async function api(method, path, body) {
+  const headers = { "content-type": "application/json" };
+  if (token()) headers.authorization = "Bearer " + token();
+  const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    const t = prompt("Server token required:");
+    if (t) { localStorage.setItem("ironhawk-token", t); return api(method, path, body); }
+  }
+  if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+  return data;
+}
+async function act(path, body) {
+  try {
+    S = await api("POST", path, body);
+    if (S.intentUrl) window.open(S.intentUrl, "_blank", "noopener");
+  } catch (e) { alert(e.message); await pull(); }
+  render();
+}
+async function pull() {
+  try { S = await api("GET", "/api/state"); }
+  catch (e) { $("feedPill").textContent = "SERVER_DOWN"; $("feedPill").className = "pill bad"; return; }
+  render();
+}
+
+function renderHeader() {
+  const f = S.feed.status;
+  $("feedPill").textContent = f;
+  $("feedPill").className = "pill " + (f === "LIVE_FEED" ? "on" : f === "FEED_SYNC" ? "warn" : f === "FEED_OFF" ? "" : "bad");
+  $("modePill").textContent = S.settings.mode;
+  $("modePill").className = S.settings.mode === "LIVE_INTENT" ? "pill bad" : "pill warn";
+  $("armPill").textContent = S.settings.armed ? "ARMED" : "DISARMED";
+  $("armPill").className = S.settings.armed ? "pill on" : "pill";
+  $("clockPill").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+function renderScan() {
+  const root = $("view-scan");
+  root.innerHTML = S.assets.map((a) => {
+    const s = a.scan;
+    const cls = s.signal === "BULL_EXEC" ? "buy" : s.signal === "BEAR_EXEC" ? "sell" : s.signal === "IN_HTF_POI" ? "poi" : "wait";
+    const ch = (s.change > 0 ? "+" : "") + s.change.toFixed(2) + "%";
+    return `<button type="button" class="card" data-pick="${esc(a.key)}" style="width:100%;text-align:left;padding:0">
+      <div class="row">
+        <div><div class="sym">${a.symbol} <span class="sub">${a.chain.toUpperCase()}</span></div><div class="sub">${a.dex} · ${a.pair}</div></div>
+        <div class="right"><div>${money(s.price)}</div><div class="${s.change >= 0 ? "up" : "down"}">${ch}</div></div>
+      </div>
+      <div class="row">
+        <div class="sub">${s.regime} · CONF ${s.confidence.toFixed(0)}% · ${s.guard}</div>
+        <span class="tag ${cls}">${s.signal}</span>
+      </div></button>`;
+  }).join("");
+  root.querySelectorAll("[data-pick]").forEach((b) => b.onclick = async () => {
+    await act("/api/settings", { selected: b.dataset.pick }); show("trade");
+  });
+}
+function renderTrade() {
+  const st = S.settings, acc = S.account;
+  const a = S.assets.find((x) => x.key === st.selected) || S.assets[0];
+  const s = a.scan, block = S.buyBlock;
+  $("view-trade").innerHTML = `
+    <div class="card pad">
+      <div class="sym">${a.symbol} · ${a.chain.toUpperCase()}</div>
+      <div class="sub">${a.dex} · ${s.signal} · ${s.guard}</div>
+      <div style="margin-top:8px;font-size:22px">${money(s.price)}</div>
+      <label>ORDER USD · cap ${money(S.maxOrder)} · risk size ${money(acc.riskSize)}</label>
+      <input id="sizeUsd" inputmode="decimal" value="${st.sizeUsd}" />
+      <div class="grid3" style="margin-top:8px">${[10, 25, 50].map((n) => `<button type="button" class="ghost" data-size="${n}">$${n}</button>`).join("")}</div>
+      <label>MODE</label>
+      <select id="mode">
+        <option value="PAPER" ${st.mode === "PAPER" ? "selected" : ""}>PAPER</option>
+        <option value="LIVE_INTENT" ${st.mode === "LIVE_INTENT" ? "selected" : ""}>LIVE_INTENT</option>
+      </select>
+      <div class="grid2" style="margin-top:10px">
+        <button type="button" id="armBtn" class="${st.armed ? "danger" : "ghost"}">${st.armed ? "DISARM" : "ARM"}</button>
+        <button type="button" id="refreshBtn" class="ghost">REFRESH</button>
+      </div>
+      <div style="height:10px"></div>
+      <button type="button" id="buyBtn" class="primary" ${block ? "disabled" : ""}>BUY ${money(acc.orderSize)}</button>
+      <p class="sub" style="margin-top:8px">${block ? "BUY blocked: " + esc(block) : "BUY available for the current fresh signal."}</p>
+      <p class="sub">${st.mode === "LIVE_INTENT" ? "Live intent opens the DEX in your wallet. You confirm there. Nothing is signed here or on the server." : "Paper fills on the server against the public price."}</p>
+    </div>`;
+  const r = $("view-trade");
+  r.querySelector("#sizeUsd").onchange = (e) => act("/api/settings", { sizeUsd: e.target.value });
+  r.querySelectorAll("[data-size]").forEach((b) => b.onclick = () => act("/api/settings", { sizeUsd: Number(b.dataset.size) }));
+  r.querySelector("#mode").onchange = (e) => act("/api/settings", { mode: e.target.value });
+  r.querySelector("#armBtn").onclick = () => act("/api/arm", { armed: !st.armed });
+  r.querySelector("#refreshBtn").onclick = () => act("/api/refresh");
+  r.querySelector("#buyBtn").onclick = () => {
+    const msg = st.mode === "LIVE_INTENT"
+      ? `Open a live ${a.chain.toUpperCase()} swap for about ${money(acc.orderSize)} of ${a.symbol} in your wallet?`
+      : `Paper BUY ${money(acc.orderSize)} of ${a.symbol} at ${money(s.price)}?`;
+    if (confirm(msg)) act("/api/buy", { key: a.key });
+  };
+}
+function renderBook() {
+  const rows = S.positions.length ? S.positions.map((p) => `<article class="card pad">
+      <div class="sym">#${String(p.id).slice(-6)} · ${p.symbol} · ${p.chain.toUpperCase()}</div>
+      <div class="sub">${p.status} · cost ${money(p.remainingUsd)} · mark ${money(p.mark)} · pnl <span class="${p.pnl >= 0 ? "up" : "down"}">${money(p.pnl)}</span></div>
+      ${p.status === "OPEN" ? `<div class="grid3" style="margin-top:10px">${[25, 50, 100].map((n) =>
+        `<button type="button" class="danger" data-sell="${p.id}" data-pct="${n}">SELL ${n}%</button>`).join("")}</div>` : ""}
+    </article>`).join("") : `<div class="card pad sub">No positions in the server book.</div>`;
+  const logs = S.log.slice(0, 12).map((l) => `<div class="log">${l.t.slice(11, 19)} ${esc(l.text)}</div>`).join("");
+  $("view-book").innerHTML = rows + `<div class="card">${logs || `<div class="log">NO_LOG</div>`}</div>`;
+  $("view-book").querySelectorAll("[data-sell]").forEach((b) => b.onclick = () => {
+    if (confirm(`Sell ${b.dataset.pct}% of this position?`)) act("/api/sell", { id: Number(b.dataset.sell), pct: Number(b.dataset.pct) });
+  });
+}
+function renderCapital() {
+  const st = S.settings, acc = S.account;
+  $("view-capital").innerHTML = `
+    <div class="card">
+      <div class="row"><div class="sub">CASH</div><div>${money(acc.cash)}</div></div>
+      <div class="row"><div class="sub">OPEN</div><div>${acc.open}</div></div>
+      <div class="row"><div class="sub">EQUITY</div><div>${money(acc.equity)}</div></div>
+    </div>
+    <div class="card pad">
+      <label>STARTING / CASH USD</label><input id="capital" inputmode="decimal" value="${st.capital}" />
+      <label>RISK PERCENT (0.1–5)</label><input id="risk" inputmode="decimal" value="${st.riskPct}" />
+      <div style="height:10px"></div>
+      <button type="button" id="saveCap" class="primary">SAVE_RISK</button>
+      <button type="button" id="resetBook" class="danger" style="width:100%;margin-top:8px">RESET_SERVER_BOOK</button>
+      <p class="sub" style="margin-top:10px">Book is stored on the IronHawk server. The server has no private keys and cannot sign; LIVE_INTENT only hands you a DEX link.</p>
+    </div>`;
+  const r = $("view-capital");
+  r.querySelector("#saveCap").onclick = () => act("/api/settings", { capital: r.querySelector("#capital").value, riskPct: r.querySelector("#risk").value });
+  r.querySelector("#resetBook").onclick = () => { if (confirm("Clear the server paper book and log?")) act("/api/reset"); };
+}
+function show(name) {
+  view = name;
+  ["scan", "trade", "book", "capital"].forEach((v) => $("view-" + v).classList.toggle("hidden", v !== name));
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
+  render();
+}
+function render() {
+  if (!S) return;
+  const focused = document.activeElement && document.activeElement.tagName === "INPUT";
+  renderHeader(); renderScan(); renderBook();
+  if (!focused) { renderTrade(); renderCapital(); }
+}
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => show(b.dataset.view));
+pull();
+setInterval(pull, 10000);
+</script>
+</body>
+</html>
